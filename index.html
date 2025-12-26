@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🎬 Pelis & 🗓️ Planes</title>
+  <style>
+    body { font-family: system-ui, Arial, sans-serif; margin: 24px; max-width: 800px; }
+    .row { display:flex; gap:8px; flex-wrap:wrap; }
+    button, input { padding:10px 12px; }
+    button { cursor:pointer; }
+    .card { border:1px solid #ddd; border-radius:12px; padding:14px; margin-top:16px; }
+    .muted { color:#666; font-size:14px; }
+    ul { padding-left:18px; }
+    li { margin:6px 0; }
+    .hidden { display:none; }
+  </style>
+</head>
+<body>
+  <h1>🎬 Pelis & 🗓️ Planes</h1>
+  <p class="muted">Lista compartida para dos móviles. Añade, sortea y borra cuando se haga.</p>
+
+  <div class="card" id="home">
+    <h2 style="margin-top:0;">¿Qué quieres usar?</h2>
+    <div class="row">
+      <button onclick="openType('pelis')">🎬 Pelis</button>
+      <button onclick="openType('planes')">🗓️ Planes</button>
+    </div>
+  </div>
+
+  <div class="card hidden" id="app">
+    <div class="row" style="justify-content:space-between; align-items:center;">
+      <h2 style="margin:0;" id="title"></h2>
+      <button onclick="goHome()">⬅️ Volver</button>
+    </div>
+
+    <div class="row" style="margin-top:10px;">
+      <input id="input" placeholder="Añadir..." />
+      <button onclick="addItem()">➕ Añadir</button>
+      <button onclick="pickRandom()">🎲 Al azar</button>
+    </div>
+
+    <div class="card hidden" id="pickCard">
+      <h3 style="margin-top:0;">📌 Selección:</h3>
+      <p id="picked" style="font-size:18px; margin:8px 0;"></p>
+      <div class="row">
+        <button onclick="markDone()">✅ Elegir / borrar</button>
+        <button onclick="pickAnother()">🔁 Buscar otra</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0;">📃 Lista</h3>
+      <p class="muted" id="empty"></p>
+      <ul id="list"></ul>
+    </div>
+  </div>
+
+<script>
+  // ✅ PEGA AQUÍ TU URL DE APPS SCRIPT (la que termina en /exec):
+  const API_URL = "PEGA_AQUI_TU_URL";
+
+  // Si en el script pusiste un PIN, ponlo aquí. Si no, déjalo vacío.
+  const PIN = "";
+
+  let currentType = null;   // "pelis" o "planes"
+  let items = [];           // [{id,type,title,createdAt}]
+  let currentPick = null;
+
+  const home = document.getElementById("home");
+  const app = document.getElementById("app");
+  const titleEl = document.getElementById("title");
+  const inputEl = document.getElementById("input");
+  const listEl = document.getElementById("list");
+  const emptyEl = document.getElementById("empty");
+  const pickCard = document.getElementById("pickCard");
+  const pickedEl = document.getElementById("picked");
+
+  function goHome() {
+    currentType = null;
+    items = [];
+    currentPick = null;
+    pickCard.classList.add("hidden");
+    app.classList.add("hidden");
+    home.classList.remove("hidden");
+  }
+
+  async function openType(type) {
+    currentType = type;
+    titleEl.textContent = type === "pelis" ? "🎬 Pelis" : "🗓️ Planes";
+    home.classList.add("hidden");
+    app.classList.remove("hidden");
+    pickCard.classList.add("hidden");
+    currentPick = null;
+    await refresh();
+    inputEl.value = "";
+    inputEl.focus();
+  }
+
+  async function refresh() {
+    const url = new URL(API_URL);
+    url.searchParams.set("action", "list");
+    url.searchParams.set("type", currentType);
+    if (PIN) url.searchParams.set("pin", PIN);
+
+    const res = await fetch(url.toString());
+    const data = await res.json();
+    if (!data.ok) {
+      alert("Error listando: " + (data.error || "unknown"));
+      return;
+    }
+    items = data.items || [];
+    render();
+  }
+
+  function render() {
+    listEl.innerHTML = "";
+    emptyEl.textContent = items.length ? "" : "Lista vacía. Añade algo arriba 🙂";
+
+    for (const it of items) {
+      const li = document.createElement("li");
+      li.textContent = it.title + " ";
+
+      const del = document.createElement("button");
+      del.textContent = "Eliminar";
+      del.onclick = () => deleteItem(it.id);
+      li.appendChild(del);
+
+      listEl.appendChild(li);
+    }
+  }
+
+  async function addItem() {
+    const title = inputEl.value.trim().replace(/\s+/g, " ");
+    if (!title) return;
+
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ action:"add", type: currentType, title, pin: PIN })
+    });
+    const data = await res.json();
+    if (!data.ok) {
+      alert("Error añadiendo: " + (data.error || "unknown"));
+      return;
+    }
+    inputEl.value = "";
+    await refresh();
+  }
+
+  function chooseRandom(excludingId=null) {
+    if (!items.length) return null;
+    const pool = excludingId ? items.filter(x => x.id !== excludingId) : items.slice();
+    if (!pool.length) return items.find(x => x.id === excludingId) || null;
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  function showPick(it) {
+    currentPick = it;
+    pickedEl.textContent = it.title;
+    pickCard.classList.remove("hidden");
+  }
+
+  function pickRandom() {
+    const it = chooseRandom();
+    if (!it) return alert("No hay nada en la lista 🙂");
+    showPick(it);
+  }
+
+  function pickAnother() {
+    if (!currentPick) return pickRandom();
+    const it = chooseRandom(currentPick.id);
+    if (it) showPick(it);
+  }
+
+  async function markDone() {
+    if (!currentPick) return;
+    await deleteItem(currentPick.id);
+    currentPick = null;
+    pickCard.classList.add("hidden");
+  }
+
+  async function deleteItem(id) {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ action:"delete", id, pin: PIN })
+    });
+    const data = await res.json();
+    if (!data.ok) {
+      alert("Error borrando: " + (data.error || "unknown"));
+      return;
+    }
+    await refresh();
+  }
+
+  inputEl.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") addItem();
+  });
+</script>
+</body>
+</html>

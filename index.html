@@ -2,57 +2,365 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>🎬 Pelis & 🗓️ Planes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Alberto & Elena</title>
+
   <style>
-    body { font-family: system-ui, Arial, sans-serif; margin: 24px; max-width: 800px; }
-    .row { display:flex; gap:8px; flex-wrap:wrap; }
-    button, input { padding:10px 12px; }
-    button { cursor:pointer; }
-    .card { border:1px solid #ddd; border-radius:12px; padding:14px; margin-top:16px; }
-    .muted { color:#666; font-size:14px; }
-    ul { padding-left:18px; }
-    li { margin:6px 0; }
-    .hidden { display:none; }
+    :root{
+      --bg1:#0b1020;
+      --bg2:#111a33;
+      --card: rgba(255,255,255,.08);
+      --card2: rgba(255,255,255,.10);
+      --stroke: rgba(255,255,255,.14);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.65);
+
+      --pink:#ff4fd8;
+      --cyan:#2ce7ff;
+      --lime:#9dff57;
+      --yellow:#ffd35a;
+
+      --shadow: 0 18px 50px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      min-height:100vh;
+      color:var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background:
+        radial-gradient(900px 500px at 20% 0%, rgba(255,79,216,.20), transparent 55%),
+        radial-gradient(900px 500px at 90% 10%, rgba(44,231,255,.18), transparent 55%),
+        radial-gradient(900px 500px at 60% 95%, rgba(157,255,87,.14), transparent 55%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+      padding: 18px 14px 24px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .wrap{
+      max-width: 520px;
+      margin: 0 auto;
+      padding-bottom: 24px;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-top: 6px;
+    }
+
+    .brand{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+
+    .brand h1{
+      margin:0;
+      font-size: 22px;
+      letter-spacing: .2px;
+      line-height:1.05;
+    }
+
+    .brand p{
+      margin:0;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .pill{
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.06);
+      padding: 8px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--muted);
+      white-space:nowrap;
+    }
+
+    .card{
+      background: var(--card);
+      border: 1px solid var(--stroke);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-top: 14px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .hero{
+      position:relative;
+      overflow:hidden;
+    }
+
+    .hero::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background:
+        radial-gradient(220px 140px at 12% 10%, rgba(255,79,216,.25), transparent 60%),
+        radial-gradient(240px 160px at 88% 25%, rgba(44,231,255,.20), transparent 60%),
+        radial-gradient(240px 160px at 55% 100%, rgba(157,255,87,.15), transparent 60%);
+      filter: blur(0px);
+      pointer-events:none;
+    }
+
+    .hero .content{
+      position:relative;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    .grid2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .mode-btn{
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.06);
+      border-radius: 16px;
+      padding: 14px 12px;
+      text-align:left;
+      color: var(--text);
+      cursor:pointer;
+      transition: transform .08s ease, background .12s ease;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      min-height: 88px;
+    }
+    .mode-btn:active{ transform: scale(.98); }
+    .mode-btn .label{
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .mode-btn .sub{
+      font-size: 12px;
+      color: var(--muted);
+      line-height:1.25;
+    }
+
+    .mode-btn.pelis{
+      background:
+        radial-gradient(140px 120px at 10% 0%, rgba(44,231,255,.25), transparent 60%),
+        rgba(255,255,255,.06);
+    }
+    .mode-btn.planes{
+      background:
+        radial-gradient(140px 120px at 10% 0%, rgba(255,79,216,.22), transparent 60%),
+        rgba(255,255,255,.06);
+    }
+
+    .bar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-top: 6px;
+    }
+
+    .back{
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 12px;
+      cursor:pointer;
+    }
+
+    .section-title{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin: 0;
+      font-size: 16px;
+    }
+    .badge{
+      font-size: 12px;
+      color: var(--muted);
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,.05);
+      border-radius: 999px;
+      padding: 6px 10px;
+    }
+
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top: 12px;
+    }
+
+    .input{
+      flex: 1 1 190px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(10,14,28,.65);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 12px 12px;
+      outline:none;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.2);
+    }
+    .input::placeholder{ color: rgba(255,255,255,.45); }
+
+    .btn{
+      border:0;
+      border-radius: 14px;
+      padding: 12px 12px;
+      font-weight: 700;
+      color: #071018;
+      cursor:pointer;
+      transition: transform .08s ease, filter .12s ease;
+      white-space:nowrap;
+    }
+    .btn:active{ transform: scale(.98); }
+    .btn.primary{
+      background: linear-gradient(90deg, var(--cyan), var(--lime));
+    }
+    .btn.secondary{
+      background: linear-gradient(90deg, var(--yellow), var(--pink));
+      color:#140712;
+    }
+    .btn.ghost{
+      background: rgba(255,255,255,.08);
+      border: 1px solid var(--stroke);
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .pick{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .picked{
+      font-size: 18px;
+      font-weight: 800;
+      line-height:1.2;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.06);
+    }
+
+    .muted{
+      color: var(--muted);
+      font-size: 13px;
+      margin: 0;
+      line-height: 1.35;
+    }
+
+    ul.list{
+      list-style: none;
+      padding: 0;
+      margin: 10px 0 0;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    .item{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding: 12px 12px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+    }
+    .item span{
+      font-size: 14px;
+      line-height:1.25;
+      word-break: break-word;
+    }
+    .item .del{
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(0,0,0,.12);
+      color: rgba(255,255,255,.88);
+      border-radius: 12px;
+      padding: 10px 10px;
+      cursor:pointer;
+      font-weight:700;
+    }
+
+    .hidden{ display:none; }
+
+    /* un poco más “app” en móvil */
+    @media (max-width: 380px){
+      .btn{ flex:1; }
+      .row{ gap:8px; }
+    }
   </style>
 </head>
+
 <body>
-  <h1>🎬 Pelis & 🗓️ Planes</h1>
-  <p class="muted">Lista compartida para dos móviles. Añade, sortea y borra cuando se haga.</p>
-
-  <div class="card" id="home">
-    <h2 style="margin-top:0;">¿Qué quieres usar?</h2>
-    <div class="row">
-      <button onclick="openType('pelis')">🎬 Pelis</button>
-      <button onclick="openType('planes')">🗓️ Planes</button>
-    </div>
-  </div>
-
-  <div class="card hidden" id="app">
-    <div class="row" style="justify-content:space-between; align-items:center;">
-      <h2 style="margin:0;" id="title"></h2>
-      <button onclick="goHome()">⬅️ Volver</button>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <h1>Alberto & Elena</h1>
+        <p>Una ruleta para elegir sin pensar demasiado ✨</p>
+      </div>
+      <div class="pill" id="topPill">Compartida</div>
     </div>
 
-    <div class="row" style="margin-top:10px;">
-      <input id="input" placeholder="Añadir..." />
-      <button onclick="addItem()">➕ Añadir</button>
-      <button onclick="pickRandom()">🎲 Al azar</button>
-    </div>
+    <!-- HOME -->
+    <div class="card hero" id="home">
+      <div class="content">
+        <p class="muted">Elige una sección y añade ideas. Cuando no sepamos qué hacer… que decida el azar 😌</p>
 
-    <div class="card hidden" id="pickCard">
-      <h3 style="margin-top:0;">📌 Selección:</h3>
-      <p id="picked" style="font-size:18px; margin:8px 0;"></p>
-      <div class="row">
-        <button onclick="markDone()">✅ Elegir / borrar</button>
-        <button onclick="pickAnother()">🔁 Buscar otra</button>
+        <div class="grid2">
+          <button class="mode-btn pelis" onclick="openType('pelis')">
+            <div class="label">🎬 Pelis</div>
+            <div class="sub">Añadir, sortear, “ver” y borrar</div>
+          </button>
+
+          <button class="mode-btn planes" onclick="openType('planes')">
+            <div class="label">🗓️ Planes</div>
+            <div class="sub">Ideas para cualquier día</div>
+          </button>
+        </div>
       </div>
     </div>
 
-    <div class="card">
-      <h3 style="margin-top:0;">📃 Lista</h3>
-      <p class="muted" id="empty"></p>
-      <ul id="list"></ul>
+    <!-- APP -->
+    <div class="card hidden" id="app">
+      <div class="bar">
+        <h2 class="section-title" id="title"></h2>
+        <button class="back" onclick="goHome()">⬅️</button>
+      </div>
+
+      <div class="row">
+        <input class="input" id="input" placeholder="Añadir..." />
+        <button class="btn primary" onclick="addItem()">Añadir</button>
+        <button class="btn secondary" onclick="pickRandom()">Al azar</button>
+      </div>
+
+      <div class="card hidden" id="pickCard" style="box-shadow:none; background: rgba(255,255,255,.05);">
+        <div class="pick">
+          <p class="muted">Ha salido esto:</p>
+          <div class="picked" id="picked"></div>
+          <div class="row">
+            <button class="btn primary" onclick="markDone()">Elegir / borrar</button>
+            <button class="btn ghost" onclick="pickAnother()">Otra</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="box-shadow:none; background: rgba(255,255,255,.05);">
+        <div class="bar">
+          <div class="badge" id="countBadge">0 en lista</div>
+        </div>
+        <p class="muted" id="empty"></p>
+        <ul class="list" id="list"></ul>
+      </div>
     </div>
   </div>
 

@@ -105,13 +105,16 @@
 
     const res = await fetch(url.toString());
     const data = await res.json();
+
     if (!data.ok) {
       alert("Error listando: " + (data.error || "unknown"));
       return;
     }
+
     items = data.items || [];
     render();
   }
+
 
   function render() {
     listEl.innerHTML = "";
@@ -135,14 +138,13 @@
   if (!title) return;
 
   try {
-    const body = new URLSearchParams({
-      action: "add",
-      type: currentType,
-      title,
-      pin: PIN
-    });
+    const url = new URL(API_URL);
+    url.searchParams.set("action", "add");
+    url.searchParams.set("type", currentType);
+    url.searchParams.set("title", title);
+    if (PIN) url.searchParams.set("pin", PIN);
 
-    const res = await fetch(API_URL, { method: "POST", body });
+    const res = await fetch(url.toString());
     const data = await res.json();
 
     if (!data.ok) {
@@ -157,15 +159,15 @@
   }
 }
 
+
 async function deleteItem(id) {
   try {
-    const body = new URLSearchParams({
-      action: "delete",
-      id,
-      pin: PIN
-    });
+    const url = new URL(API_URL);
+    url.searchParams.set("action", "delete");
+    url.searchParams.set("id", id);
+    if (PIN) url.searchParams.set("pin", PIN);
 
-    const res = await fetch(API_URL, { method: "POST", body });
+    const res = await fetch(url.toString());
     const data = await res.json();
 
     if (!data.ok) {
@@ -178,6 +180,7 @@ async function deleteItem(id) {
     alert("Fallo de red (delete). Mira consola. " + err);
   }
 }
+
 
 
   function chooseRandom(excludingId=null) {

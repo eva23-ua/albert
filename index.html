@@ -370,8 +370,8 @@
   let currentPick = null;
 
   const home = document.getElementById("home");
-  const app = document.getElementById("app");
-  const titleEl = document.getElementById("title");
+  const app = document.getElementById("appCard");
+  const titleEl = document.getElementById("sectionTitle");
   const inputEl = document.getElementById("input");
   const listEl = document.getElementById("list");
   const emptyEl = document.getElementById("empty");
@@ -420,20 +420,27 @@
 
   function render() {
     listEl.innerHTML = "";
-    emptyEl.textContent = items.length ? "" : "Lista vacía. Añade algo arriba 🙂";
+    document.getElementById("countPill").textContent = `${items.length} en lista`;
+    emptyEl.textContent = items.length ? "" : "Lista vacía… añade algo arriba 🙂";
 
     for (const it of items) {
       const li = document.createElement("li");
-      li.textContent = it.title + " ";
+      li.className = "item";
+
+      const span = document.createElement("span");
+      span.textContent = it.title;
 
       const del = document.createElement("button");
+      del.className = "del";
       del.textContent = "Eliminar";
       del.onclick = () => deleteItem(it.id);
-      li.appendChild(del);
 
+      li.appendChild(span);
+      li.appendChild(del);
       listEl.appendChild(li);
     }
   }
+
 
   async function addItem() {
   const title = inputEl.value.trim().replace(/\s+/g, " ");

@@ -197,9 +197,13 @@
 
     .grid2{
       display:grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr;   /* móvil: uno debajo del otro */
       gap: 10px;
       margin-top: 12px;
+    }
+
+    @media (min-width: 420px){
+      .grid2{ grid-template-columns: 1fr 1fr; } /* pantallas algo más grandes: 2 columnas */
     }
 
     .bigBtn{
@@ -220,6 +224,9 @@
     }
     .bigBtn.planes{
       background: linear-gradient(180deg, rgba(203,183,255,.28), rgba(255,255,255,1));
+    }
+    .bigBtn.restos{
+      background: linear-gradient(180deg, rgba(255, 226, 159, .45), rgba(255,255,255,1));
     }
 
     .topRow{
@@ -392,7 +399,7 @@
     <div class="content">
       <!-- HOME -->
       <div class="card" id="home">
-        <p class="muted">Añadimos ideas cuando se nos ocurran, y cuando no sepamos qué hacer… que elija el azar.</p>
+        <p class="muted">Página web privada de Abeti y Elenoide para que nos ayude a decidirnos cuando estamos indecisos.</p>
 
         <div class="grid2">
           <button class="bigBtn pelis" onclick="openType('pelis')">
@@ -401,6 +408,10 @@
 
           <button class="bigBtn planes" onclick="openType('planes')">
             <div class="t">🗓️ Planes</div>
+          </button>
+
+          <button class="bigBtn restos" onclick="openType('restaurantes')">
+            <div class="t">🍽️ Restaurantes</div>
           </button>
         </div>
       </div>
@@ -581,7 +592,10 @@
 
   async function openType(type) {
     currentType = type;
-    titleEl.textContent = type === "pelis" ? "🎬 Pelis" : "🗓️ Planes";
+    titleEl.textContent =
+      type === "pelis" ? "🎬 Pelis" :
+      type === "planes" ? "🗓️ Planes" :
+      "🍽️ Restaurantes";
     home.classList.add("hidden");
     app.classList.remove("hidden");
     pickCard.classList.add("hidden");
